@@ -2,15 +2,15 @@ from solaredge import solaredge
 
 import authentication
 
+solaredge_instance = solaredge.Solaredge(authentication.solar_edge_api_key)
+
 
 def get_overproduction():
     """
     :return: Current overproduction in Watt
     """
 
-    s = solaredge.Solaredge(authentication.solar_edge_api_key)
-
-    current_power_flow = s.get_current_power_flow(authentication.solar_edge_site_id)
+    current_power_flow = solaredge_instance.get_current_power_flow(authentication.solar_edge_site_id)
 
     load = current_power_flow["siteCurrentPowerFlow"]["LOAD"]["currentPower"] * 1000
 
