@@ -133,7 +133,11 @@ def _find_plugs():
         alias = base64.b64decode(device["alias"]).decode("utf-8")
 
         if device["deviceType"] == "SMART.TAPOPLUG" and _should_control_plug(alias):
-            plugs.append(Plug(device["deviceId"], _get_optional_load_from_alias(alias)))
+            try:
+                optional_load = _get_optional_load_from_alias(alias)
+                plugs.append(Plug(device["deviceId"], optional_load))
+            except:
+                logging.warning(f"Could not parse optional load: {alias}")
 
     return plugs
 
