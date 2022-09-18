@@ -5,6 +5,7 @@ A python script you can run to automatically toggle on/off your tp link tapo p10
 *You can run this on a server because unlike most p100 power plug control scripts, this one works remotely.*
 
 # Setup
+- Name your plugs like this in the tapo app: `PV-1000W-Heating` (Use the wattage of the device plugged into the plug instead of 1000W)
 - Clone this repo
 - Run `pip install -r requirements.txt`
 - Create `authentication.py` with these variables:
@@ -37,4 +38,3 @@ A python script you can run to automatically toggle on/off your tp link tapo p10
     - `sudo systemctl enable solaredge-tplink-control.service`
     - `sudo reboot`
     - Check if it worked: `sudo systemctl status solaredge-tplink-control.service`
-`

@@ -1,13 +1,13 @@
+import logging
 import sys
 import time
 
 import settings
 import solaredge_helper
 import tplink_helper
-
-import logging
-
 # set up logging
+import utils
+
 logging.root.handlers = []
 logging.basicConfig(level=logging.DEBUG, handlers=[
     # log both to file & stdout
@@ -15,33 +15,25 @@ logging.basicConfig(level=logging.DEBUG, handlers=[
     logging.StreamHandler(sys.stdout)
 ])
 
-plug_enabled = False
-
-tplink_helper.set_plug_states(plug_enabled)
-
-logging.info("Disabled all plugs at startup - waiting a minute to let solaredge update load.")
-
-time.sleep(60)
-
 while True:
     overproduction = solaredge_helper.get_overproduction()
 
-    threshold = settings.min_overproduction
+    overproduction_without_optional_load = overproduction
 
-    if plug_enabled:
-        threshold -= settings.optional_load
+    plugs = tplink_helper.get_plugs_with_state()
 
-    plug_enabled_before = plug_enabled
+    for plug in plugs:
+        if plug.enabled:
+            overproduction_without_optional_load += plug.optional_load
 
-    if overproduction > threshold:
-        plug_enabled = True
-        logging.info(f"Enough overproduction: {overproduction} Watt")
-    else:
-        plug_enabled = False
-        logging.info(f"NOT enough overproduction: {overproduction} Watt")
+    # enable the combination of plugs that maximizes the sum of the enabled plugs' optional loads while being smaller
+    # than the overproduction
+    # using a brute force algorithm, could improve by using dynamic programming, see knapsack problem
 
-    if plug_enabled != plug_enabled_before:
-        # minimize requests sent to tplink by only sending a request if the state actually changed
-        tplink_helper.set_plug_states(plug_enabled)
+    load_maximizing_plugs = utils.find_load_maximizing_plugs(plugs, overproduction_without_optional_load)
+
+    for plug in plugs:
+        should_be_enabled = plug in load_maximizing_plugs
+        tplink_helper.set_plug_state(plug, should_be_enabled)
 
     time.sleep(settings.check_every_minutes * 60)
