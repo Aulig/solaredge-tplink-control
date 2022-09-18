@@ -93,7 +93,11 @@ def refresh_token_if_expired(func):
 
 @refresh_token_if_expired
 def _find_plug_ids():
-    device_list_response = requests_session.post(f"{tp_link_base_url}?token={cloud_token}&termID={terminal_uuid}",
+    device_list_response = requests_session.post(tp_link_base_url,
+                                                 params={
+                                                     "token": cloud_token,
+                                                     "termID": terminal_uuid
+                                                 },
                                                  json={
                                                      "method": "getDeviceList"
                                                  })
@@ -117,9 +121,12 @@ def _find_plug_ids():
 @refresh_token_if_expired
 def _tapo_plug_state(plug_id):
     current_state_response = requests_session.get(
-        f"{tapo_app_server_url}/v1/things/shadows?thingNames={plug_id}",
+        f"{tapo_app_server_url}/v1/things/shadows",
+        params={
+            "thingNames": plug_id
+        },
         headers={
-            'app-cid': 'app:x:x',
+            "app-cid": "app:x:x",
             "Authorization": f"ut|{cloud_token}",
         }, verify=False)
 

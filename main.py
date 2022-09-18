@@ -7,6 +7,8 @@ import tplink_helper
 
 import logging
 
+# set up logging
+logging.root.handlers = []
 logging.basicConfig(level=logging.DEBUG, handlers=[
     # log both to file & stdout
     logging.FileHandler("activity.log"),
