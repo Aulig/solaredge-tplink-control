@@ -124,8 +124,6 @@ def _find_plugs():
 
     device_list = device_list_response.json()["result"]["deviceList"]
 
-    logging.info(f"Found devices: {device_list}")
-
     plugs = []
 
     for device in device_list:
@@ -155,8 +153,6 @@ def _tapo_plug_state(plug_id):
         }, verify=False)
 
     _check_for_token_expiry(current_state_response)
-
-    logging.info(current_state_response.text)
 
     return current_state_response.json()["shadows"][0]
 
@@ -242,5 +238,4 @@ def set_plug_state(plug, new_on_state):
 
         _check_for_token_expiry(set_state_response)
 
-        logging.info(set_state_response.text)
         plug.enabled = new_on_state
