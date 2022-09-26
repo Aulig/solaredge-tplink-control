@@ -1,3 +1,5 @@
+import logging
+
 from solaredge import solaredge
 
 import authentication
@@ -15,5 +17,7 @@ def get_overproduction():
     load = current_power_flow["siteCurrentPowerFlow"]["LOAD"]["currentPower"] * 1000
 
     pv = current_power_flow["siteCurrentPowerFlow"]["PV"]["currentPower"] * 1000
+
+    logging.info(f"Current load: {load}W, current PV production: {pv}W")
 
     return pv - load

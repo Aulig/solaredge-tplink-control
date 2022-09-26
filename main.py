@@ -1,6 +1,9 @@
 import logging
 import sys
 import time
+from datetime import datetime
+
+import pytz
 
 import settings
 import solaredge_helper
@@ -19,25 +22,31 @@ logging.basicConfig(level=logging.INFO,
 
 while True:
     try:
-        overproduction = solaredge_helper.get_overproduction()
+        current_time_at_location = datetime.now(pytz.timezone(settings.timezone))
 
-        overproduction_without_optional_load = overproduction
+        if current_time_at_location.hour >= 22 or current_time_at_location.hour < 5:
+            logging.info("It is dark outside, not checking the photovoltaic system status")
+        else:
+            overproduction = solaredge_helper.get_overproduction()
 
-        plugs = tplink_helper.get_plugs_with_state()
+            overproduction_without_optional_load = overproduction
 
-        for plug in plugs:
-            if plug.enabled:
-                overproduction_without_optional_load += plug.optional_load
+            plugs = tplink_helper.get_plugs_with_state()
 
-        logging.info(f"Overproduction without optional load: {overproduction_without_optional_load}")
+            for plug in plugs:
+                if plug.enabled:
+                    overproduction_without_optional_load += plug.optional_load
 
-        load_maximizing_plugs = utils.find_load_maximizing_plugs(plugs, overproduction_without_optional_load)
+            logging.info(f"Overproduction without optional load: {overproduction_without_optional_load}")
 
-        logging.info(f"Load maximizing plugs: {[plug.id for plug in load_maximizing_plugs]}")
+            load_maximizing_plugs = utils.find_load_maximizing_plugs(plugs, overproduction_without_optional_load)
 
-        for plug in plugs:
-            should_be_enabled = plug in load_maximizing_plugs
-            tplink_helper.set_plug_state(plug, should_be_enabled)
+            logging.info(f"Load maximizing plugs: {[plug.id for plug in load_maximizing_plugs]}")
+
+            for plug in plugs:
+                should_be_enabled = plug in load_maximizing_plugs
+                tplink_helper.set_plug_state(plug, should_be_enabled)
+
     except Exception as e:
         logging.error(e)
 
