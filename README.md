@@ -7,6 +7,8 @@ A python script you can run to automatically toggle on/off your tp link tapo p10
 # Setup
 - Name your plugs like this in the tapo app: `PV-1000W-Heating` (Use the wattage of the device plugged into the plug instead of 1000W)
 - Clone this repo
+- `python -m venv venv`
+- `source venv/bin/activate`
 - Run `pip install -r requirements.txt`
 - Create `authentication.py` with these variables:
   - solar_edge_api_key = "Your solaredge api key - found on the solaredge website > admin > access > api access" 
@@ -24,7 +26,7 @@ A python script you can run to automatically toggle on/off your tp link tapo p10
   
           [Service]
           Type=simple
-          ExecStart=/usr/bin/python3 /home/aulig/solaredge-tplink-control/main.py
+          ExecStart=/home/aulig/solaredge-tplink-control/venv/bin/python3 /home/aulig/solaredge-tplink-control/main.py
           WorkingDirectory=/home/aulig/solaredge-tplink-control
           User=aulig
           StandardOutput=append:/home/aulig/solaredge-tplink-control/systemdexecution.log
